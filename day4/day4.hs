@@ -3,6 +3,7 @@ import Text.Parsec.String
 import qualified Data.Map.Strict as Map
 import qualified Data.List as List
 import Data.Either
+import Data.Char
 
 data RoomCode = RC [String] Int String deriving (Show, Eq)
 
@@ -30,13 +31,31 @@ getCheckSum = map snd . take 5 . List.sort . map (\(k, v) -> (-v, k)) . Map.toAs
 countChar :: String -> Map.Map Char Int
 countChar = foldl (\ac l -> Map.insertWith (+) l 1 ac) Map.empty
 
+parsedRooms :: [String] -> [RoomCode]
+parsedRooms = rights . map (parse parseRoom "")
+
+checkRooms :: [RoomCode] -> [RoomCode]
+checkRooms = filter checkRoom
+
 -- Part 1
 part1 :: [String] -> Int
-part1 = sum . map getId . filter checkRoom . rights . map (parse parseRoom "")
+part1 = sum . map getId . checkRooms . parsedRooms
 
 -- Part 2
+shiftRoomName :: RoomCode -> RoomCode
+shiftRoomName (RC name c cs) = RC (map (map (shiftChar c)) name) c cs
+
+toNameAndCode :: RoomCode -> (String, Int)
+toNameAndCode (RC name c _) = (unwords name ,c)
+
+shiftChar :: Int -> Char -> Char
+shiftChar i c = chr $ ((ord c - ord 'a' + i) `mod` 26) + ord 'a'
+
+target :: String
+target = "northpole object storage"
+
 part2 :: [String] -> Int
-part2 = undefined
+part2 = head . map snd . filter ((==) target . fst) . map (toNameAndCode . shiftRoomName) . checkRooms . parsedRooms
 
 main :: IO()
 main = readInput >>= \content ->
