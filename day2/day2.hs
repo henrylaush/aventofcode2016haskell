@@ -41,12 +41,9 @@ fsm '9' 'D' = '9'
 fsm '9' 'L' = '8'
 fsm _ _ = error "Not in set"
 
-findOneLetter :: (Char -> Char -> Char) -> Char -> String -> Char
-findOneLetter fn lst = foldl fn lst
-
 -- Part 1
 part1 :: [String] -> String
-part1 = drop 1 . scanl (findOneLetter fsm) '5'
+part1 = drop 1 . scanl (foldl fsm) '5'
 
 --     1
 --   2 3 4
@@ -110,7 +107,7 @@ fsm2 _ _ = error "Not in set"
 
 -- Part 2
 part2 :: [String] -> String
-part2 = drop 1 . scanl (findOneLetter fsm2) '5'
+part2 = drop 1 . scanl (foldl fsm2) '5'
 
 main :: IO()
 main = readInput >>= \content ->
