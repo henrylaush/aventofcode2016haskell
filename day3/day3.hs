@@ -12,7 +12,7 @@ parseTriangle :: Parser Triangle
 parseTriangle = T <$> parseInt <*> parseInt <*> parseInt
 
 isValidTriangle :: Triangle -> Bool
-isValidTriangle (T x y z) = and [(x + y > z), (y + z) > x, (z + x) > y]
+isValidTriangle (T x y z) = (x + y > z) && (y + z) > x && (z + x) > y
 
 part1 :: [String] -> Int
 part1 = length . filter isValidTriangle . rights . map (parse parseTriangle "")
@@ -20,8 +20,8 @@ part1 = length . filter isValidTriangle . rights . map (parse parseTriangle "")
 -- Part 2
 columnWise :: [[Int]] -> [Triangle]
 columnWise [] = []
-columnWise (x:[]) = []
-columnWise (x:y:[]) = []
+columnWise [_] = []
+columnWise [_,_] = []
 columnWise (x:y:z:xs) = zipWith3 T x y z ++ columnWise xs
 
 part2 :: [String] -> Int
