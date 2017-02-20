@@ -1,0 +1,6 @@
+if [ $# -eq 0 ]; then
+    echo "Must provide day number"
+    exit 1
+fi
+
+mkdir "day$1" && cp tpl.hs "day$1/day$1.hs"
