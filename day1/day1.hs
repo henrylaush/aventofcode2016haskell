@@ -25,7 +25,7 @@ parseAction :: Parser Action
 parseAction = (parseR <|> parseL) <*> parseDigits
 
 parseInput :: Parser [Action]
-parseInput = parseAction `sepBy` (string ", ")
+parseInput = parseAction `sepBy` string ", "
 
 step :: Santa -> Action -> Santa
 step (S (C x y) d) a = S (C (x + dis * fst p) (y + dis * snd p)) nd
@@ -71,7 +71,7 @@ detailedPath :: [Coords] -> [Coords]
 detailedPath p = concatMap stepsBetween (zip p (drop 1 p)) ++ [last p]
 
 stepsBetween :: (Coords, Coords) -> [Coords]
-stepsBetween ((C fx fy), (C tx ty)) = take d $ zipWith C (iterate (((tx - fx) `div` d) + ) fx) (iterate (((ty - fy) `div` d) + ) fy)
+stepsBetween (C fx fy, C tx ty) = take d $ zipWith C (iterate (((tx - fx) `div` d) + ) fx) (iterate (((ty - fy) `div` d) + ) fy)
                                     where d = abs (tx - fx + ty - fy)
 
 firstRepeat :: [Coords] -> Coords
