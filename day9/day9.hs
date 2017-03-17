@@ -2,6 +2,7 @@ import Text.Parsec
 import Text.Parsec.String
 import Data.Either (rights)
 import Data.List (sum)
+import Data.Maybe (mapMaybe)
 
 data Part = R Char | M Int Int deriving (Show, Eq)
 data FState = A Int | D Int Int deriving (Show, Eq)
@@ -19,11 +20,11 @@ parseMarker = between (char '(') (char ')') (M <$> parseInt <* char 'x' <*> pars
 parseInput :: [String] -> [[Part]]
 parseInput = rights . map (parse parsePart "")
 
--- Part 1
 partLength :: Part -> Int
 partLength (R _) = 1
 partLength (M a b) = 3 + length (show a) + length (show b)
 
+-- Part 1
 expand :: FState -> Part -> FState
 expand (A t) (R _) = A (t + 1)
 expand (A t) (M a b) = D (t + a * b) a
@@ -40,9 +41,27 @@ getLength D{} = error "Still dropping"
 part1 :: [String] -> Int
 part1 = sum . map (getLength . foldl expand (A 0)) . parseInput
 
+decrementMultiplier :: Int -> (Int, Int) -> Maybe (Int, Int)
+decrementMultiplier by (a, b) 
+    | a > by = Just (a - by, b)
+    | otherwise = Nothing
+
+decrementMultipliers :: Int -> [(Int, Int)] -> [(Int, Int)]
+decrementMultipliers by = mapMaybe (decrementMultiplier by)
+
+calMultiplier :: [(Int, Int)] -> Int
+calMultiplier = foldr ((*) . snd) 1
+
+getLengthP2 :: P2State -> Int
+getLengthP2 (D2 a _) = a
+
 -- Part 2
+expand2 :: P2State -> Part -> P2State
+expand2 (D2 ttl mul) (R _) = D2 (ttl + calMultiplier mul) (decrementMultipliers 1 mul)
+expand2 (D2 ttl mul) m@(M a b) = D2 ttl ((a, b) : decrementMultipliers (partLength m) mul)
+
 part2 :: [String] -> Int
-part2 = undefined
+part2 = sum . map (getLengthP2 . foldl expand2 (D2 0 [])) . parseInput
 
 main :: IO()
 main = readInput >>= \content ->
